@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Truth or Dare</title>
+
+    <style>
+      @keyframes gradientAnimation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradientAnimation 15s ease infinite;
+        color: white;
+        text-align: center;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center; /* Center content horizontally */
+        min-height: 100vh;
+        padding-top: 20px;
+      }
+
+      h1 {
+        text-shadow: 0 0 10px #00000050;
+      }
+
+      .tab-content {
+        margin: 20px auto;
+        width: 80%; /* Reduced width for better spacing */
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(8px);
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+      }
+
+      textarea {
+        background: rgba(255, 255, 255, 0.8);
+        color: black;
+        border: 1px solid #ddd; /* Added a subtle border */
+        width: 90%;
+        border-radius: 10px;
+        font-size: 16px;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+
+      .main-btn {
+        background: #00eaff;
+        border: none;
+        color: #000;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 5px;
+        box-shadow: 0 0 15px #00eaff;
+      }
+
+      .main-btn:hover {
+        transform: scale(1.05);
+      }
+
+      #wheel {
+        width: 350px;
+        height: 350px;
+        border-radius: 50%;
+        margin: 15px auto;
+        border: 10px solid #00eaff;
+        transition: transform 6s cubic-bezier(0.25, 1, 0.4, 1);
+        box-shadow: 0 0 30px #00eaff;
+      }
+
+      .wheel-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center center;
+        color: black;
+        font-weight: bold;
+        text-shadow: 0 0 2px white, 0 0 2px white;
+      }
+
+      #wheel-area {
+        position: relative;
+      }
+
+      .pointer {
+        width: 0;
+        height: 0;
+        margin: auto;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-top: 35px solid white; /* Mengubah arah panah */
+        position: absolute;
+        top: -35px; /* Mengembalikan posisi ke atas */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+      }
+
+      #spin-trigger {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90px;
+        height: 90px;
+        background: white;
+        color: #e73c7e;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 5;
+        border: 5px solid #00eaff;
+      }
+
+      /* --- MODAL STYLES --- */
+      #result-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        display: none; /* Hidden by default */
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+
+      #modal-content {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 30px;
+        border-radius: 20px;
+        border: 2px solid #00eaff;
+        box-shadow: 0 0 30px #00eaff;
+        width: 90%;
+        max-width: 500px;
+      }
+
+      #modal-winner {
+        font-size: 2em;
+        color: #00eaff;
+      }
+
+      #modal-challenge-type {
+        font-size: 1.5em;
+        margin-top: 10px;
+      }
+
+      #modal-challenge-text {
+        font-size: 1.2em;
+        margin-top: 20px;
+        min-height: 50px;
+      }
+
+      /* --- RESPONSIVE STYLES (MEDIA QUERIES) --- */
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 1.8em;
+        }
+      }
+
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 1.5em;
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+
+        .tab-content {
+          width: 95%;
+          margin-top: 15px;
+          margin-bottom: 15px;
+          padding: 15px;
+        }
+
+        #wheel {
+          width: 300px;
+          height: 300px;
+        }
+
+        .wheel-label {
+          font-size: 0.9em;
+        }
+
+        #modal-winner {
+          font-size: 1.5em;
+        }
+        #modal-challenge-type {
+          font-size: 1.2em;
+        }
+        #modal-challenge-text {
+          font-size: 1em;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Truth or Dare</h1>
+    <button
+      id="music-toggle-btn"
+      class="main-btn"
+      style="position: absolute; top: 20px; left: 20px"
+    >
+      🎵
+    </button>
+    <button
+      class="main-btn"
+      onclick="toggleFullscreen()"
+      style="position: absolute; top: 20px; right: 20px"
+    >
+      📱
+    </button>
+
+    <!-- Setup Container -->
+    <div id="setup-container" class="tab-content">
+      <h2>Siapkan Permainan</h2>
+      <h3>Nama Pemain (pisahkan dengan koma)</h3>
+      <textarea id="names" rows="3"></textarea>
+
+      <h3>Custom TRUTH</h3>
+      <textarea
+        id="truthInput"
+        rows="4"
+        placeholder="Pisahkan dengan baris baru (1 truth per baris)"
+      ></textarea>
+
+      <h3>Custom DARE</h3>
+      <textarea
+        id="dareInput"
+        rows="4"
+        placeholder="Pisahkan dengan baris baru (1 dare per baris)"
+      ></textarea>
+
+      <br />
+      <button class="main-btn" onclick="startGame()">🎨 START GAME</button>
+    </div>
+
+    <!-- Wheel Container -->
+    <div id="wheel-container" class="tab-content" style="display: none">
+      <div id="wheel-area">
+        <div class="pointer"></div>
+        <div id="spin-trigger" onclick="spinWheel()">SPIN</div>
+        <div id="wheel"></div>
+      </div>
+      <button
+        class="main-btn"
+        onclick="goBackToSetup()"
+        style="margin-top: 20px"
+      >
+        Ubah Tantangan
+      </button>
+    </div>
+
+    <!-- Sound -->
+    <audio id="spinSound" src="must121hosler-1-65800.mp3"></audio>
+
+    <!-- Click Sound -->
+    <audio
+      id="clickSound"
+      src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_c6ccf3235f.mp3"
+    ></audio>
+
+    <!-- Result Modal -->
+    <div id="result-modal">
+      <div id="modal-content">
+        <h2 id="modal-winner"></h2>
+
+        <div id="modal-choice-container">
+          <h3>Pilih:</h3>
+          <button class="main-btn" onclick="getChallenge('TRUTH')">
+            TRUTH
+          </button>
+          <button class="main-btn" onclick="getChallenge('DARE')">DARE</button>
+        </div>
+
+        <div id="modal-challenge-container" style="display: none">
+          <h3 id="modal-challenge-type"></h3>
+          <p id="modal-challenge-text"></p>
+        </div>
+
+        <br />
+        <button
+          id="next-round-btn"
+          class="main-btn"
+          onclick="closeModal()"
+          style="display: none"
+        >
+          NEXT ROUND
+        </button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
